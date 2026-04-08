@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS brands (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS products (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    brand_id BIGINT NOT NULL,
+    CONSTRAINT fk_products_brand FOREIGN KEY (brand_id) REFERENCES brands(id)
+);
