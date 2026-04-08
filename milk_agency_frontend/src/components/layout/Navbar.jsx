@@ -40,6 +40,30 @@ export default function Navbar() {
               Products
             </Link>
           </li>
+          <li>
+            <Link
+              to="/customer-types"
+              className={isActive('/customer-types') ? styles.active : ''}
+            >
+              Customer Types
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/areas"
+              className={isActive('/areas') ? styles.active : ''}
+            >
+              Areas
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/customers"
+              className={isActive('/customers') ? styles.active : ''}
+            >
+              Customers
+            </Link>
+          </li>
         </ul>
       </div>
     </nav>
