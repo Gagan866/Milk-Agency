@@ -1,0 +1,130 @@
+@import '../styles/variables.css';
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+.header h1 {
+  margin: 0;
+  flex: 1;
+  min-width: 200px;
+}
+
+.formCard {
+  margin-bottom: var(--spacing-lg);
+}
+
+.form {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: flex-end;
+}
+
+.form > :first-child {
+  flex: 1;
+  min-width: 250px;
+}
+
+.brandsList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.brandCard {
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.brandCard:hover {
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+}
+
+.brandCard h3 {
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.itemRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.name {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-primary);
+}
+
+.editButton {
+  width: auto !important;
+}
+
+.brandId {
+  font-size: var(--font-size-sm);
+  color: var(--color-muted);
+  margin: 0;
+}
+
+.loading {
+  text-align: center;
+  padding: var(--spacing-2xl);
+  color: var(--color-muted);
+}
+
+.error {
+  background-color: rgba(220, 38, 38, 0.1);
+  color: var(--color-error);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius);
+  border-left: 4px solid var(--color-error);
+  margin-bottom: var(--spacing-lg);
+}
+
+.empty {
+  text-align: center;
+  padding: var(--spacing-2xl);
+  color: var(--color-muted);
+  background-color: var(--color-bg);
+  border-radius: var(--radius);
+  border: 2px dashed var(--color-border);
+}
+
+.empty p {
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header h1 {
+    margin-bottom: var(--spacing-md);
+  }
+
+  .form {
+    flex-direction: column;
+  }
+
+  .form > :first-child {
+    min-width: auto;
+  }
+
+  .brandsList {
+    grid-template-columns: 1fr;
+  }
+
+  .itemRow {
+    align-items: flex-start;
+  }
+}

@@ -1,0 +1,21 @@
+@import '../../styles/variables.css';
+
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--spacing-lg);
+  flex: 1;
+}
+
+@media (max-width: 1024px) {
+  .container {
+    padding: var(--spacing-lg);
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: var(--spacing-md);
+  }
+}
