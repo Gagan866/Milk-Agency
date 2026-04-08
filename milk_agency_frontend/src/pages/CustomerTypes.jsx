@@ -10,6 +10,8 @@ export default function CustomerTypes() {
   const [customerTypes, setCustomerTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState('');
+  const [saving, setSaving] = useState(false);
   const [name, setName] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -58,22 +60,30 @@ export default function CustomerTypes() {
 
   const handleSaveCustomerType = async () => {
     if (!name.trim()) {
-      alert('Please enter a customer type name');
+      setError('Please enter a customer type name');
       return;
     }
 
     try {
+      setSaving(true);
+      setError(null);
+      setSuccess('');
+
       if (isEditMode && selectedId) {
         await axiosInstance.put(`/customer-types/${selectedId}`, { name });
       } else {
         await axiosInstance.post('/customer-types', { name });
       }
 
+      setSuccess(isEditMode ? 'Customer type updated successfully' : 'Customer type added successfully');
+      setTimeout(() => setSuccess(''), 2500);
       resetForm();
-      fetchCustomerTypes();
+      await fetchCustomerTypes();
     } catch (err) {
-      alert(isEditMode ? 'Failed to update customer type' : 'Failed to add customer type');
+      setError(isEditMode ? 'Failed to update customer type' : 'Failed to add customer type');
       console.error('Error saving customer type:', err);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -81,7 +91,7 @@ export default function CustomerTypes() {
     <Container>
       <div className={styles.header}>
         <h1>Customer Types</h1>
-        <Button onClick={handleToggleForm}>
+        <Button onClick={handleToggleForm} disabled={saving}>
           {showForm ? '✕ Cancel' : '+ Add Customer Type'}
         </Button>
       </div>
@@ -93,13 +103,16 @@ export default function CustomerTypes() {
               label="Customer Type Name"
               placeholder="Enter customer type name"
               value={name}
+              disabled={saving}
               onChange={(e) => setName(e.target.value)}
             />
-            <Button variant="primary" onClick={handleSaveCustomerType}>
-              {isEditMode ? 'Update Customer Type' : 'Add Customer Type'}
+            {error && <div className={styles.error}>{error}</div>}
+            {success && <div className={styles.success}>{success}</div>}
+            <Button variant="primary" onClick={handleSaveCustomerType} disabled={saving}>
+              {saving ? 'Saving...' : isEditMode ? 'Update Customer Type' : 'Add Customer Type'}
             </Button>
             {isEditMode && (
-              <Button variant="secondary" onClick={resetForm}>
+              <Button variant="secondary" onClick={resetForm} disabled={saving}>
                 Cancel Edit
               </Button>
             )}
@@ -108,7 +121,7 @@ export default function CustomerTypes() {
       )}
 
       {loading && <div className={styles.loading}>Loading customer types...</div>}
-      {error && <div className={styles.error}>{error}</div>}
+      {!showForm && error && <div className={styles.error}>{error}</div>}
 
       <div className={styles.customerTypesList}>
         {customerTypes && customerTypes.length > 0 ? (

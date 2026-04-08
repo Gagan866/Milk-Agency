@@ -15,6 +15,32 @@
   margin-bottom: var(--spacing-lg);
 }
 
+.dateRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+  max-width: 240px;
+}
+
+.dateInput {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-base);
+  font-family: inherit;
+  background-color: var(--color-card);
+  color: var(--color-text);
+  transition: all var(--transition-fast);
+  min-height: 40px;
+}
+
+.dateInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
 .filterGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(180px, 1fr));
@@ -152,6 +178,17 @@
   font-size: 14px;
 }
 
+.success {
+  color: white;
+  background-color: var(--color-success);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 12px;
+  animation: fadeIn 0.3s ease-in;
+}
+
 @media (max-width: 1024px) {
   .row {
     grid-template-columns: minmax(160px, 1fr) 100px 120px 120px;
@@ -159,6 +196,10 @@
 }
 
 @media (max-width: 900px) {
+  .dateRow {
+    max-width: 100%;
+  }
+
   .filterGrid {
     grid-template-columns: 1fr;
   }

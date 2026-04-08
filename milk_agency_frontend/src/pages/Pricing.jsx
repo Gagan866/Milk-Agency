@@ -15,6 +15,7 @@ export default function Pricing() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState('');
 
   useEffect(() => {
     fetchInitialData();
@@ -111,18 +112,19 @@ export default function Pricing() {
 
   const handleSaveAllPrices = async () => {
     if (!selectedCustomerTypeId) {
-      alert('Please select a customer type first');
+      setError('Please select a customer type first');
       return;
     }
 
     if (saveableProducts.length === 0) {
-      alert('Please enter at least one price');
+      setError('Please enter at least one price');
       return;
     }
 
     try {
       setSaving(true);
       setError(null);
+      setSuccess('');
 
       const requests = saveableProducts.map((product) => {
         const productId = getProductKey(product);
@@ -148,9 +150,15 @@ export default function Pricing() {
         return axiosInstance.post('/prices', payload);
       }).filter(Boolean);
 
+      if (requests.length === 0) {
+        setError('Please enter valid prices greater than 0');
+        return;
+      }
+
       await Promise.all(requests);
       await fetchExistingPrices(selectedCustomerTypeId);
-      alert('Prices saved successfully');
+      setSuccess('Prices saved successfully');
+      setTimeout(() => setSuccess(''), 2500);
     } catch (err) {
       setError('Failed to save prices');
       console.error('Error saving prices:', err);
@@ -175,6 +183,7 @@ export default function Pricing() {
               id="customerTypeSelect"
               className={styles.select}
               value={selectedCustomerTypeId}
+              disabled={saving}
               onChange={(e) => setSelectedCustomerTypeId(e.target.value)}
             >
               <option value="">Select customer type</option>
@@ -199,6 +208,7 @@ export default function Pricing() {
 
       {loading && <div className={styles.loading}>Loading pricing data...</div>}
       {error && <div className={styles.error}>{error}</div>}
+      {success && <div className={styles.success}>{success}</div>}
 
       {selectedCustomerTypeId && (
         <div className={styles.pricingList}>
@@ -226,6 +236,7 @@ export default function Pricing() {
                           min="0"
                           placeholder="Enter price"
                           value={value}
+                          disabled={saving}
                           onChange={(e) => handlePriceChange(productId, e.target.value)}
                         />
                       </div>

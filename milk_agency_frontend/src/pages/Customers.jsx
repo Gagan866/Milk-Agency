@@ -17,6 +17,8 @@ export default function Customers() {
   const [areas, setAreas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState('');
+  const [saving, setSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
@@ -64,7 +66,7 @@ export default function Customers() {
 
   const handleSaveCustomer = async () => {
     if (!name.trim() || !selectedTypeId || !selectedAreaId) {
-      alert('Please fill all fields');
+      setError('Please fill all fields');
       return;
     }
 
@@ -75,17 +77,25 @@ export default function Customers() {
     };
 
     try {
+      setSaving(true);
+      setError(null);
+      setSuccess('');
+
       if (isEditMode && selectedId) {
         await axiosInstance.put(`/customers/${selectedId}`, payload);
       } else {
         await axiosInstance.post('/customers', payload);
       }
 
+      setSuccess(isEditMode ? 'Customer updated successfully' : 'Customer added successfully');
+      setTimeout(() => setSuccess(''), 2500);
       resetForm();
-      fetchData();
+      await fetchData();
     } catch (err) {
-      alert(isEditMode ? 'Failed to update customer' : 'Failed to add customer');
+      setError(isEditMode ? 'Failed to update customer' : 'Failed to add customer');
       console.error('Error saving customer:', err);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -124,7 +134,7 @@ export default function Customers() {
     <Container>
       <div className={styles.header}>
         <h1>Customers</h1>
-        <Button onClick={handleToggleForm}>
+        <Button onClick={handleToggleForm} disabled={saving}>
           {showForm ? '✕ Cancel' : '+ Add Customer'}
         </Button>
       </div>
@@ -136,6 +146,7 @@ export default function Customers() {
               label="Customer Name"
               placeholder="Enter customer name"
               value={name}
+              disabled={saving}
               onChange={(e) => setName(e.target.value)}
             />
 
@@ -146,6 +157,7 @@ export default function Customers() {
               <select
                 id="customerTypeSelect"
                 value={selectedTypeId}
+                disabled={saving}
                 onChange={(e) => setSelectedTypeId(e.target.value)}
                 className={styles.select}
               >
@@ -165,6 +177,7 @@ export default function Customers() {
               <select
                 id="areaSelect"
                 value={selectedAreaId}
+                disabled={saving}
                 onChange={(e) => setSelectedAreaId(e.target.value)}
                 className={styles.select}
               >
@@ -177,12 +190,15 @@ export default function Customers() {
               </select>
             </div>
 
-            <Button variant="primary" onClick={handleSaveCustomer}>
-              {isEditMode ? 'Update Customer' : 'Add Customer'}
+            {error && <div className={styles.error}>{error}</div>}
+            {success && <div className={styles.success}>{success}</div>}
+
+            <Button variant="primary" onClick={handleSaveCustomer} disabled={saving}>
+              {saving ? 'Saving...' : isEditMode ? 'Update Customer' : 'Add Customer'}
             </Button>
 
             {isEditMode && (
-              <Button variant="secondary" onClick={resetForm}>
+              <Button variant="secondary" onClick={resetForm} disabled={saving}>
                 Cancel Edit
               </Button>
             )}
@@ -191,7 +207,7 @@ export default function Customers() {
       )}
 
       {loading && <div className={styles.loading}>Loading customers...</div>}
-      {error && <div className={styles.error}>{error}</div>}
+      {!showForm && error && <div className={styles.error}>{error}</div>}
 
       <div className={styles.customersList}>
         {customers && customers.length > 0 ? (

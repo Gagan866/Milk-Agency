@@ -10,6 +10,8 @@ export default function Brands() {
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState('');
+  const [saving, setSaving] = useState(false);
   const [newBrandName, setNewBrandName] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -22,6 +24,7 @@ export default function Brands() {
   const fetchBrands = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await axiosInstance.get('/brands');
       setBrands(response.data);
     } catch (err) {
@@ -61,22 +64,30 @@ export default function Brands() {
 
   const handleSaveBrand = async () => {
     if (!newBrandName.trim()) {
-      alert('Please enter a brand name');
+      setError('Please enter a brand name');
       return;
     }
 
     try {
+      setSaving(true);
+      setError(null);
+      setSuccess('');
+
       if (isEditMode && selectedId) {
         await axiosInstance.put(`/brands/${selectedId}`, { name: newBrandName });
       } else {
         await axiosInstance.post('/brands', { name: newBrandName });
       }
 
+      setSuccess(isEditMode ? 'Brand updated successfully' : 'Brand added successfully');
+      setTimeout(() => setSuccess(''), 2500);
       resetForm();
-      fetchBrands();
+      await fetchBrands();
     } catch (err) {
-      alert(isEditMode ? 'Failed to update brand' : 'Failed to add brand');
+      setError(isEditMode ? 'Failed to update brand' : 'Failed to add brand');
       console.error('Error saving brand:', err);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -84,7 +95,7 @@ export default function Brands() {
     <Container>
       <div className={styles.header}>
         <h1>Brands</h1>
-        <Button onClick={handleToggleForm}>
+        <Button onClick={handleToggleForm} disabled={saving}>
           {showAddForm ? '✕ Cancel' : '+ Add Brand'}
         </Button>
       </div>
@@ -96,13 +107,16 @@ export default function Brands() {
               label="Brand Name"
               placeholder="Enter brand name"
               value={newBrandName}
+              disabled={saving}
               onChange={(e) => setNewBrandName(e.target.value)}
             />
-            <Button variant="primary" onClick={handleSaveBrand}>
-              {isEditMode ? 'Update Brand' : 'Add Brand'}
+            {error && <div className={styles.error}>{error}</div>}
+            {success && <div className={styles.success}>{success}</div>}
+            <Button variant="primary" onClick={handleSaveBrand} disabled={saving}>
+              {saving ? 'Saving...' : isEditMode ? 'Update Brand' : 'Add Brand'}
             </Button>
             {isEditMode && (
-              <Button variant="secondary" onClick={handleCancel}>
+              <Button variant="secondary" onClick={handleCancel} disabled={saving}>
                 Cancel Edit
               </Button>
             )}
@@ -111,7 +125,7 @@ export default function Brands() {
       )}
 
       {loading && <div className={styles.loading}>Loading brands...</div>}
-      {error && <div className={styles.error}>{error}</div>}
+      {!showAddForm && error && <div className={styles.error}>{error}</div>}
 
       <div className={styles.brandsList}>
         {brands && brands.length > 0 ? (

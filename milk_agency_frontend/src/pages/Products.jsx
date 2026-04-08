@@ -11,6 +11,8 @@ export default function Products() {
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState('');
+  const [saving, setSaving] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState({ name: '', brandId: '' });
   const [isEditMode, setIsEditMode] = useState(false);
@@ -23,6 +25,7 @@ export default function Products() {
   const fetchData = async () => {
     try {
       setLoading(true);
+      setError(null);
       const [productsRes, brandsRes] = await Promise.all([
         axiosInstance.get('/products'),
         axiosInstance.get('/brands'),
@@ -39,11 +42,15 @@ export default function Products() {
 
   const handleAddProduct = async () => {
     if (!formData.name.trim() || !formData.brandId) {
-      alert('Please fill all fields');
+      setError('Please fill all fields');
       return;
     }
 
     try {
+      setSaving(true);
+      setError(null);
+      setSuccess('');
+
       const payload = {
         name: formData.name,
         brandId: parseInt(formData.brandId),
@@ -55,14 +62,18 @@ export default function Products() {
         await axiosInstance.post('/products', payload);
       }
 
+      setSuccess(isEditMode ? 'Product updated successfully' : 'Product added successfully');
+      setTimeout(() => setSuccess(''), 2500);
       setFormData({ name: '', brandId: '' });
       setShowAddForm(false);
       setIsEditMode(false);
       setSelectedId(null);
-      fetchData();
+      await fetchData();
     } catch (err) {
-      alert(isEditMode ? 'Failed to update product' : 'Failed to add product');
+      setError(isEditMode ? 'Failed to update product' : 'Failed to add product');
       console.error('Error saving product:', err);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -113,7 +124,7 @@ export default function Products() {
     <Container>
       <div className={styles.header}>
         <h1>Products</h1>
-        <Button onClick={handleToggleForm}>
+        <Button onClick={handleToggleForm} disabled={saving}>
           {showAddForm ? '✕ Cancel' : '+ Add Product'}
         </Button>
       </div>
@@ -125,6 +136,7 @@ export default function Products() {
               label="Product Name"
               placeholder="Enter product name"
               value={formData.name}
+              disabled={saving}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             />
             <div className={styles.selectWrapper}>
@@ -134,6 +146,7 @@ export default function Products() {
               <select
                 id="brandSelect"
                 value={formData.brandId}
+                disabled={saving}
                 onChange={(e) => setFormData({ ...formData, brandId: e.target.value })}
                 className={styles.select}
               >
@@ -145,11 +158,13 @@ export default function Products() {
                 ))}
               </select>
             </div>
-            <Button variant="primary" onClick={handleAddProduct}>
-              {isEditMode ? 'Update Product' : 'Add Product'}
+            {error && <div className={styles.error}>{error}</div>}
+            {success && <div className={styles.success}>{success}</div>}
+            <Button variant="primary" onClick={handleAddProduct} disabled={saving}>
+              {saving ? 'Saving...' : isEditMode ? 'Update Product' : 'Add Product'}
             </Button>
             {isEditMode && (
-              <Button variant="secondary" onClick={handleCancel}>
+              <Button variant="secondary" onClick={handleCancel} disabled={saving}>
                 Cancel Edit
               </Button>
             )}
@@ -158,7 +173,7 @@ export default function Products() {
       )}
 
       {loading && <div className={styles.loading}>Loading products...</div>}
-      {error && <div className={styles.error}>{error}</div>}
+      {!showAddForm && error && <div className={styles.error}>{error}</div>}
 
       <div className={styles.productsList}>
         {products && products.length > 0 ? (

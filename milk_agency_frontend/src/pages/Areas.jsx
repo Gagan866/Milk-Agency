@@ -10,6 +10,8 @@ export default function Areas() {
   const [areas, setAreas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState('');
+  const [saving, setSaving] = useState(false);
   const [name, setName] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -58,22 +60,30 @@ export default function Areas() {
 
   const handleSaveArea = async () => {
     if (!name.trim()) {
-      alert('Please enter an area name');
+      setError('Please enter an area name');
       return;
     }
 
     try {
+      setSaving(true);
+      setError(null);
+      setSuccess('');
+
       if (isEditMode && selectedId) {
         await axiosInstance.put(`/areas/${selectedId}`, { name });
       } else {
         await axiosInstance.post('/areas', { name });
       }
 
+      setSuccess(isEditMode ? 'Area updated successfully' : 'Area added successfully');
+      setTimeout(() => setSuccess(''), 2500);
       resetForm();
-      fetchAreas();
+      await fetchAreas();
     } catch (err) {
-      alert(isEditMode ? 'Failed to update area' : 'Failed to add area');
+      setError(isEditMode ? 'Failed to update area' : 'Failed to add area');
       console.error('Error saving area:', err);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -81,7 +91,7 @@ export default function Areas() {
     <Container>
       <div className={styles.header}>
         <h1>Areas</h1>
-        <Button onClick={handleToggleForm}>
+        <Button onClick={handleToggleForm} disabled={saving}>
           {showForm ? '✕ Cancel' : '+ Add Area'}
         </Button>
       </div>
@@ -93,13 +103,16 @@ export default function Areas() {
               label="Area Name"
               placeholder="Enter area name"
               value={name}
+              disabled={saving}
               onChange={(e) => setName(e.target.value)}
             />
-            <Button variant="primary" onClick={handleSaveArea}>
-              {isEditMode ? 'Update Area' : 'Add Area'}
+            {error && <div className={styles.error}>{error}</div>}
+            {success && <div className={styles.success}>{success}</div>}
+            <Button variant="primary" onClick={handleSaveArea} disabled={saving}>
+              {saving ? 'Saving...' : isEditMode ? 'Update Area' : 'Add Area'}
             </Button>
             {isEditMode && (
-              <Button variant="secondary" onClick={resetForm}>
+              <Button variant="secondary" onClick={resetForm} disabled={saving}>
                 Cancel Edit
               </Button>
             )}
@@ -108,7 +121,7 @@ export default function Areas() {
       )}
 
       {loading && <div className={styles.loading}>Loading areas...</div>}
-      {error && <div className={styles.error}>{error}</div>}
+      {!showForm && error && <div className={styles.error}>{error}</div>}
 
       <div className={styles.areasList}>
         {areas && areas.length > 0 ? (

@@ -18,7 +18,7 @@ const getTodayDateString = () => {
 export default function Orders() {
   const location = useLocation();
   const editingOrderId = location.state?.orderId ?? null;
-  const [orderDate, setOrderDate] = useState(getTodayDateString());
+  const [selectedDate, setSelectedDate] = useState(getTodayDateString());
   const [selectedCustomerTypeId, setSelectedCustomerTypeId] = useState('');
   const [selectedAreaId, setSelectedAreaId] = useState('');
   const [selectedCustomerId, setSelectedCustomerId] = useState('');
@@ -29,6 +29,7 @@ export default function Orders() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   useEffect(() => {
     fetchData();
@@ -80,7 +81,7 @@ export default function Orders() {
       const customerTypeId = customer?.customerType?.id ?? customer?.customerTypeId;
       const areaId = customer?.area?.id ?? customer?.areaId;
 
-      setOrderDate(order.date || getTodayDateString());
+      setSelectedDate(order.date || getTodayDateString());
       setSelectedCustomerTypeId(customerTypeId ? String(customerTypeId) : '');
       setSelectedAreaId(areaId ? String(areaId) : '');
       setSelectedCustomerId(customer?.id ? String(customer.id) : '');
@@ -204,7 +205,7 @@ export default function Orders() {
 
   const handleSaveOrder = async () => {
     if (!selectedCustomerId) {
-      alert('Please select customer type, area, and customer');
+      setError('Please select customer type, area, and customer');
       return;
     }
 
@@ -216,14 +217,17 @@ export default function Orders() {
       }));
 
     if (items.length === 0) {
-      alert('Please enter quantity for at least one product');
+      setError('Please enter quantity for at least one product');
       return;
     }
 
-    const today = new Date().toISOString().split('T')[0];
+    if (!selectedDate) {
+      setError('Please select an order date');
+      return;
+    }
 
     const payload = {
-      date: editingOrderId ? orderDate : today,
+      date: selectedDate,
       customerId: Number(selectedCustomerId),
       items,
     };
@@ -231,6 +235,7 @@ export default function Orders() {
     try {
       setSaving(true);
       setError('');
+      setSuccess('');
       if (editingOrderId) {
         await axiosInstance.put(`/orders/${editingOrderId}`, payload);
       } else {
@@ -242,7 +247,8 @@ export default function Orders() {
         resetQtyMap[product.id] = '';
       });
       setQuantityMap(resetQtyMap);
-      alert(editingOrderId ? 'Order updated successfully' : 'Order saved successfully');
+      setSuccess(editingOrderId ? 'Order updated successfully' : 'Order saved successfully');
+      setTimeout(() => setSuccess(''), 2500);
     } catch (err) {
       let message = err.response?.data?.message || 'Failed to save order';
       const match = message.match(/productId\s(\d+)/);
@@ -273,6 +279,18 @@ export default function Orders() {
       </div>
 
       <Card className={styles.filterCard}>
+        <div className={styles.dateRow}>
+          <label htmlFor="orderDate" className={styles.label}>Date</label>
+          <input
+            id="orderDate"
+            type="date"
+            className={styles.dateInput}
+            value={selectedDate}
+            disabled={saving}
+            onChange={(e) => setSelectedDate(e.target.value)}
+          />
+        </div>
+
         <div className={styles.filterGrid}>
           <div className={styles.selectWrapper}>
             <label htmlFor="customerTypeSelect" className={styles.label}>Customer Type</label>
@@ -280,6 +298,7 @@ export default function Orders() {
               id="customerTypeSelect"
               className={styles.select}
               value={selectedCustomerTypeId}
+              disabled={saving}
               onChange={(e) => {
                 setSelectedCustomerTypeId(e.target.value);
                 setSelectedCustomerId('');
@@ -298,6 +317,7 @@ export default function Orders() {
               id="areaSelect"
               className={styles.select}
               value={selectedAreaId}
+              disabled={saving}
               onChange={(e) => {
                 setSelectedAreaId(e.target.value);
                 setSelectedCustomerId('');
@@ -316,6 +336,7 @@ export default function Orders() {
               id="customerSelect"
               className={styles.select}
               value={selectedCustomerId}
+              disabled={saving}
               onChange={(e) => setSelectedCustomerId(e.target.value)}
             >
               <option value="">Select customer</option>
@@ -352,6 +373,7 @@ export default function Orders() {
                           min="0"
                           placeholder="Qty"
                           value={quantityMap[product.id] ?? ''}
+                          disabled={saving}
                           onChange={(e) => handleQuantityChange(product.id, e.target.value)}
                         />
                       </div>
@@ -373,6 +395,7 @@ export default function Orders() {
             <div className={styles.orderTotal}>Order Total: {totalAmount.toFixed(2)}</div>
             <div className={styles.actionsWrap}>
               {error && <p className={styles.error}>{error}</p>}
+              {success && <p className={styles.success}>{success}</p>}
               <Button variant="primary" onClick={handleSaveOrder} disabled={saving || !selectedCustomerId}>
                 {saving ? 'Saving...' : editingOrderId ? 'Update Order' : 'Save Order'}
               </Button>

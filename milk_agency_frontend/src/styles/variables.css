@@ -67,3 +67,15 @@
   --z-nav: 1000;
   --z-modal: 1200;
 }
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

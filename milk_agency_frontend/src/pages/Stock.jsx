@@ -30,6 +30,7 @@ export default function Stock() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState('');
 
   useEffect(() => {
     fetchProducts();
@@ -142,7 +143,7 @@ export default function Stock() {
 
   const handleSaveStock = async () => {
     if (!selectedDate) {
-      alert('Please select a date');
+      setError('Please select a date');
       return;
     }
 
@@ -159,6 +160,7 @@ export default function Stock() {
     try {
       setSaving(true);
       setError(null);
+      setSuccess('');
 
       if (stockExists) {
         await axiosInstance.put(`/stocks/${selectedDate}`, { items });
@@ -168,7 +170,8 @@ export default function Stock() {
 
       setStockExists(true);
       await fetchStockByDate(selectedDate, products);
-      alert('Stock saved successfully');
+      setSuccess('Stock saved successfully');
+      setTimeout(() => setSuccess(''), 2500);
     } catch (err) {
       setError('Failed to save stock');
       console.error('Error saving stock:', err);
@@ -190,6 +193,7 @@ export default function Stock() {
               label="Stock Date"
               type="date"
               value={selectedDate}
+              disabled={saving}
               onChange={(e) => setSelectedDate(e.target.value)}
             />
           </div>
@@ -206,9 +210,17 @@ export default function Stock() {
 
       {loading && <div className={styles.loading}>Loading stock data...</div>}
       {error && <div className={styles.error}>{error}</div>}
+      {success && <div className={styles.success}>{success}</div>}
 
       {!loading && (
         <div className={styles.stockList}>
+          <div className={styles.headerRow}>
+            <span>Product</span>
+            <span>Old</span>
+            <span>New</span>
+            <span>Total</span>
+          </div>
+
           {Object.entries(groupedProducts).map(([brand, items]) => (
             <div key={brand} className={styles.brandSection}>
               <h3 className={styles.brandTitle}>{brand}</h3>
@@ -218,7 +230,7 @@ export default function Stock() {
 
                 return (
                   <Card key={product.id} className={styles.stockCard}>
-                    <div className={styles.stockRow}>
+                    <div className={styles.productRow}>
                       <div className={styles.productCell}>
                         <div className={styles.productInfo}>
                           <strong>{product.name}</strong>
@@ -232,6 +244,7 @@ export default function Stock() {
                           min="0"
                           placeholder="Old"
                           value={row?.oldQuantity ?? ''}
+                          disabled={saving}
                           onChange={(e) => handleQuantityChange(product.id, 'oldQuantity', e.target.value)}
                         />
                       </div>
@@ -242,6 +255,7 @@ export default function Stock() {
                           min="0"
                           placeholder="New"
                           value={row?.newQuantity ?? ''}
+                          disabled={saving}
                           onChange={(e) => handleQuantityChange(product.id, 'newQuantity', e.target.value)}
                         />
                       </div>
