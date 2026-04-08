@@ -5,35 +5,23 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: var(--spacing-lg);
-  flex-wrap: wrap;
-  gap: var(--spacing-md);
 }
 
 .header h1 {
   margin: 0;
-  flex: 1;
-  min-width: 200px;
 }
 
-.formCard {
+.filterCard {
   margin-bottom: var(--spacing-lg);
 }
 
-.form {
-  display: flex;
+.filterGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(160px, 1fr));
   gap: var(--spacing-md);
-  align-items: flex-end;
-  flex-wrap: wrap;
 }
 
-.form > :first-child {
-  flex: 1;
-  min-width: 200px;
-}
-
-.selectWrapper {
-  flex: 1;
-  min-width: 150px;
+.filterField {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
@@ -45,6 +33,7 @@
   font-size: var(--font-size-sm);
 }
 
+.input,
 .select {
   padding: var(--spacing-sm) var(--spacing-md);
   border: 2px solid var(--color-border);
@@ -53,50 +42,34 @@
   font-family: inherit;
   background-color: var(--color-card);
   color: var(--color-text);
-  cursor: pointer;
-  transition: all var(--transition-fast);
   min-height: 40px;
+  transition: all var(--transition-fast);
 }
 
+.select {
+  cursor: pointer;
+}
+
+.input:focus,
 .select:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-.productsList {
+.ordersList {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-md);
 }
 
-.brandSection {
-  margin-bottom: 20px;
-}
-
-.brandTitle {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: var(--color-primary);
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.productCard {
-  cursor: pointer;
+.orderCard {
   transition: all var(--transition-fast);
 }
 
-.productCard:hover {
-  box-shadow: var(--shadow-lg);
+.orderCard:hover {
+  box-shadow: var(--shadow-md);
   border-color: var(--color-primary);
-  transform: translateY(-2px);
-}
-
-.productCard h3 {
-  color: var(--color-primary);
-  margin-bottom: var(--spacing-sm);
 }
 
 .itemRow {
@@ -106,27 +79,58 @@
   gap: var(--spacing-md);
 }
 
+.itemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.meta {
+  font-size: var(--font-size-sm);
+  color: var(--color-muted);
+}
+
 .name {
-  display: block;
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-primary);
-  margin-bottom: var(--spacing-xs);
+}
+
+.total {
+  color: var(--color-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.itemsBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-xs);
+}
+
+.itemLine {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) auto auto;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+.itemProduct {
+  color: var(--color-text);
+}
+
+.itemQuantity {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.itemTotal {
+  color: var(--color-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
 }
 
 .editButton {
   width: auto !important;
-}
-
-.brand {
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text);
-  margin-bottom: var(--spacing-xs);
-}
-
-.productId {
-  font-size: var(--font-size-sm);
-  color: var(--color-muted);
-  margin: 0;
 }
 
 .loading {
@@ -136,12 +140,9 @@
 }
 
 .error {
-  background-color: rgba(220, 38, 38, 0.1);
   color: var(--color-error);
-  padding: var(--spacing-lg);
-  border-radius: var(--radius);
-  border-left: 4px solid var(--color-error);
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: 10px;
+  font-size: 14px;
 }
 
 .empty {
@@ -158,32 +159,21 @@
 }
 
 @media (max-width: 768px) {
-  .header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .header h1 {
-    margin-bottom: var(--spacing-md);
-  }
-
-  .form {
-    flex-direction: column;
-  }
-
-  .form > :first-child {
-    min-width: auto;
-  }
-
-  .selectWrapper {
-    min-width: auto;
-  }
-
-  .productsList {
+  .filterGrid {
     grid-template-columns: 1fr;
   }
 
   .itemRow {
-    align-items: flex-start;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .itemLine {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .editButton {
+    width: 100% !important;
   }
 }

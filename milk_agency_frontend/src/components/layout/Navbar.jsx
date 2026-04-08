@@ -64,6 +64,38 @@ export default function Navbar() {
               Customers
             </Link>
           </li>
+          <li>
+            <Link
+              to="/pricing"
+              className={isActive('/pricing') ? styles.active : ''}
+            >
+              Pricing
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/stock"
+              className={isActive('/stock') ? styles.active : ''}
+            >
+              Stock
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/orders"
+              className={isActive('/orders') ? styles.active : ''}
+            >
+              Orders
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/orders-list"
+              className={isActive('/orders-list') ? styles.active : ''}
+            >
+              Orders List
+            </Link>
+          </li>
         </ul>
       </div>
     </nav>

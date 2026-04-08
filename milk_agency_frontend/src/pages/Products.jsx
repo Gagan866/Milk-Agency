@@ -98,6 +98,17 @@ export default function Products() {
     return brand ? brand.name : 'Unknown';
   };
 
+  const groupedProducts = products.reduce((accumulator, product) => {
+    const brandName = product.brand?.name || 'Other';
+
+    if (!accumulator[brandName]) {
+      accumulator[brandName] = [];
+    }
+
+    accumulator[brandName].push(product);
+    return accumulator;
+  }, {});
+
   return (
     <Container>
       <div className={styles.header}>
@@ -151,23 +162,29 @@ export default function Products() {
 
       <div className={styles.productsList}>
         {products && products.length > 0 ? (
-          products.map((product) => (
-            <Card key={product.id} className={styles.productCard}>
-              <div className={styles.itemRow}>
-                <div>
-                  <strong className={styles.name}>{product.name}</strong>
-                  <p className={styles.brand}>Brand: {getBrandName(product)}</p>
-                </div>
-                <Button
-                  variant="secondary"
-                  className={styles.editButton}
-                  onClick={() => handleEditProduct(product)}
-                >
-                  Edit
-                </Button>
-              </div>
-              <p className={styles.productId}>ID: {product.id}</p>
-            </Card>
+          Object.entries(groupedProducts).map(([brand, items]) => (
+            <div key={brand} className={styles.brandSection}>
+              <h3 className={styles.brandTitle}>{brand}</h3>
+
+              {items.map((product) => (
+                <Card key={product.id} className={styles.productCard}>
+                  <div className={styles.itemRow}>
+                    <div>
+                      <strong className={styles.name}>{product.name}</strong>
+                      <p className={styles.brand}>Brand: {getBrandName(product)}</p>
+                    </div>
+                    <Button
+                      variant="secondary"
+                      className={styles.editButton}
+                      onClick={() => handleEditProduct(product)}
+                    >
+                      Edit
+                    </Button>
+                  </div>
+                  <p className={styles.productId}>ID: {product.id}</p>
+                </Card>
+              ))}
+            </div>
           ))
         ) : (
           <div className={styles.empty}>
