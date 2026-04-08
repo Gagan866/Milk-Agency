@@ -1,5 +1,6 @@
 package com.example.milk_agency_backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -28,6 +29,7 @@ public class StockItem {
     private Long id;
 
     @NotNull
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "stock_id", nullable = false)
     private Stock stock;
@@ -36,6 +38,16 @@ public class StockItem {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
+
+    @NotNull
+    @Min(0)
+    @Column(name = "old_quantity", nullable = false)
+    private Integer oldQuantity;
+
+    @NotNull
+    @Min(0)
+    @Column(name = "new_quantity", nullable = false)
+    private Integer newQuantity;
 
     @NotNull
     @Min(0)

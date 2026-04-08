@@ -1,6 +1,5 @@
 package com.example.milk_agency_backend.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -33,7 +32,6 @@ public class Stock {
     @Column(name = "date", nullable = false, unique = true)
     private LocalDate date;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "stock", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StockItem> stockItems = new ArrayList<>();
 }
